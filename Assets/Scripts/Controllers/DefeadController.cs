@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-public class DefeadController : MonoBehaviour
-{
+public class DefeadController : MonoBehaviour {
 
     [SerializeField] private HealthBehaviour _healthBehaviour;
     [SerializeField] private ViewsController _viewsController;
