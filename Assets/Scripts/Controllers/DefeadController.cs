@@ -13,10 +13,7 @@ public class DefeadController : MonoBehaviour
         => HealthBehaviour.OnDie += OnDieHandler;
 
     private void OnDisable()
-    {
-        if (HealthBehaviour)
-            HealthBehaviour.OnDie -= OnDieHandler;
-    }
+        => HealthBehaviour?.OnDie -= OnDieHandler;
 
     private void OnDieHandler() 
         => ViewsController.Show<DefeadView>();
