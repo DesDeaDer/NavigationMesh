@@ -1,7 +1,4 @@
-﻿public class MenuView : ViewBase
-{
+﻿public class MenuView : ViewBase {
     public void Play()
-    {
-        SceneID.Game.LoadScene();
-    }
+        => SceneID.Game.LoadScene();
 }
