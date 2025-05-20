@@ -11,114 +11,49 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private Color _dieColor;
     [SerializeField] private float _distanceToTarget;
 
-    public MeshRenderer MeshRenderer
-    {
-        get
-        {
-            return _meshRenderer;
-        }
-
-    }
-    public HealthBehaviour HealthBehaviour
-    {
-        get
-        {
-            return _healthBehaviour;
-        }
+    public MeshRenderer MeshRenderer => _meshRenderer;
+    public HealthBehaviour HealthBehaviour => _healthBehaviour;
+    public AttackBehaviour AttackBehaviour => _attackBehaviour;
+    public NavMeshAgent Agent => _agent;
+    public float DistanceToTarget {
+        get => _distanceToTarget;
+        set => _distanceToTarget = value;
     }
 
-    public AttackBehaviour AttackBehaviour
-    {
-        get
-        {
-            return _attackBehaviour;
-        }
-    }
-
-    public NavMeshAgent Agent
-    {
-        get
-        {
-            return _agent;
-        }
-    }
-
-    public float DistanceToTarget
-    {
-        get
-        {
-            return _distanceToTarget;
-        }
-
-        set
-        {
-            _distanceToTarget = value;
-        }
-    }
-
-    public UserInfo UserInfo
-    {
-        get
-        {
-            return _userInfo;
-        }
-    }
-
-    public Color DieColor
-    {
-        get
-        {
-            return _dieColor;
-        }
-    }
+    public UserInfo UserInfo => _userInfo;
+    public Color DieColor => _dieColor;
 
     public HealthBehaviour Target { get; set; }
 
-    private void OnEnable()
-    {
-        HealthBehaviour.OnDie += OnDieHandler;
-    }
+    private void OnEnable() 
+        => HealthBehaviour.OnDie += OnDieHandler;
 
-    private void OnDisable()
-    {
-        if (HealthBehaviour)
-        {
-            HealthBehaviour.OnDie -= OnDieHandler;
-        }
-    }
+    private void OnDisable() 
+        => HealthBehaviour?.OnDie -= OnDieHandler;
 
-    private void LateUpdate()
-    {
-        if (Target)
-        {
-            if ((Agent.transform.position - Target.transform.position).magnitude < DistanceToTarget)
-            {
-                AttackBehaviour.Attack(Target);
-            }
-            else
-            {
-                Agent.SetDestination(Target.transform.position);
-            }
-        }
-        else if (AttackBehaviour.IsAttackTarget)
-        {
+    private void LateUpdate() {
+        var distance = (Agent.transform.position - Target.transform.position).magnitude;
+        var isAttackDistance = distance < DistanceToTarget;
+        var isAttackNow = AttackBehaviour.IsAttackTarget;
+        var isTarget = Target;
+        var isAttack = isTarget && isAttackDistance;
+        var isMoveToTarget = isTarget && !isAttack;
+        var isAttackStop = !isAttack && !isMoveToTarget;
+        
+        if (isAttack)
+            AttackBehaviour.Attack(Target);
+        else if (isMoveToTarget)
+            Agent.SetDestination(Target.transform.position);
+        else if (isAttackStop)
             AttackBehaviour.Untarget();
-        }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "Player")
-        {
-            if (HealthBehaviour.IsLife)
-            {
-                Target = other.GetComponent<HealthBehaviour>();
-            }
-        }
+    private void OnTriggerEnter(Collider other) {
+        if (other.tag == "Player" && HealthBehaviour.IsLife)
+            Target = other.GetComponent<HealthBehaviour>();
     }
 
-    private void OnDieHandler()
-    {
+    private void OnDieHandler() {
         UserInfo.KillEnemy();
         MeshRenderer.material.color = DieColor;
         AttackBehaviour.Untarget();
