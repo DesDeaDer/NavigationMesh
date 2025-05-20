@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : MonoBehaviour
-{
+public class EnemyController : MonoBehaviour {
     [SerializeField] private MeshRenderer _meshRenderer;
     [SerializeField] private HealthBehaviour _healthBehaviour;
     [SerializeField] private AttackBehaviour _attackBehaviour;
