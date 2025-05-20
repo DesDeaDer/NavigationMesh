@@ -9,12 +9,12 @@ public class DefeadController : MonoBehaviour
     public HealthBehaviour HealthBehaviour => _healthBehaviour;
     public ViewsController ViewsController => _viewsController;
 
-    private void OnEnable() 
+    void OnEnable() 
         => HealthBehaviour.OnDie += OnDieHandler;
 
-    private void OnDisable()
+    void OnDisable()
         => HealthBehaviour?.OnDie -= OnDieHandler;
 
-    private void OnDieHandler() 
+    void OnDieHandler() 
         => ViewsController.Show<DefeadView>();
 }
