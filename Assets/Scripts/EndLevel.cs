@@ -1,50 +1,23 @@
 ﻿using UnityEngine;
 
-public class EndLevel : MonoBehaviour
-{
+public class EndLevel : MonoBehaviour {
     [SerializeField] private Transform _player;
     [SerializeField] private LevelTargets _levelTargets;
     [SerializeField] private ViewsController _viewsController;
 
-    public Transform Player
-    {
-        get
-        {
-            return _player;
-        }
-    }
-
-    public LevelTargets LevelTargets
-    {
-        get
-        {
-            return _levelTargets;
-        }
-    }
-
-    public ViewsController ViewsController
-    {
-        get
-        {
-            return _viewsController;
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
+    public Transform Player => _player;
+    public LevelTargets LevelTargets => _levelTargets;
+    public ViewsController ViewsController => _viewsController;
+    void OnTriggerEnter(Collider other) {
         if (other.transform == Player)
-        {
             if (LevelTargets.IsCompleted)
-            {
                 ViewsController.Show<WinView>();
-            }
-            else
-            {
+            else {
                 var killsCounter = LevelTargets.Get<LevetTargetKillsCounter>();
                 var view = ViewsController.Get<InfoView>();
-                view.Text = string.Format("Need to kill {0} more enemies", killsCounter.CountKills - killsCounter.KillsCurrent);
+                var killsRemained = killsCounter.CountKills - killsCounter.KillsCurrent;
+                view.Text = $"Need to kill {killsRemained} more enemies";
                 view.Show();
             }
-        }
     }
 }
