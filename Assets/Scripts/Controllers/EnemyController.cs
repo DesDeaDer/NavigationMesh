@@ -25,13 +25,13 @@ public class EnemyController : MonoBehaviour
 
     public HealthBehaviour Target { get; set; }
 
-    private void OnEnable() 
+    void OnEnable() 
         => HealthBehaviour.OnDie += OnDieHandler;
 
-    private void OnDisable() 
+    void OnDisable() 
         => HealthBehaviour?.OnDie -= OnDieHandler;
 
-    private void LateUpdate() {
+    void LateUpdate() {
         var distance = (Agent.transform.position - Target.transform.position).magnitude;
         var isAttackDistance = distance < DistanceToTarget;
         var isAttackNow = AttackBehaviour.IsAttackTarget;
@@ -48,12 +48,12 @@ public class EnemyController : MonoBehaviour
             AttackBehaviour.Untarget();
     }
 
-    private void OnTriggerEnter(Collider other) {
+    void OnTriggerEnter(Collider other) {
         if (other.tag == "Player" && HealthBehaviour.IsLife)
             Target = other.GetComponent<HealthBehaviour>();
     }
 
-    private void OnDieHandler() {
+    void OnDieHandler() {
         UserInfo.KillEnemy();
         MeshRenderer.material.color = DieColor;
         AttackBehaviour.Untarget();
