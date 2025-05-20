@@ -1,4 +1,3 @@
-﻿public interface ITargetLevel
-{
+﻿public interface ITargetLevel {
     bool IsCompleted { get; }
 }

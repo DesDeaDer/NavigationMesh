@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-public class DefeadController : MonoBehaviour
-{
+public class DefeadController : MonoBehaviour {
 
     [SerializeField] private HealthBehaviour _healthBehaviour;
     [SerializeField] private ViewsController _viewsController;
@@ -9,15 +8,12 @@ public class DefeadController : MonoBehaviour
     public HealthBehaviour HealthBehaviour => _healthBehaviour;
     public ViewsController ViewsController => _viewsController;
 
-    private void OnEnable() 
+    void OnEnable() 
         => HealthBehaviour.OnDie += OnDieHandler;
 
-    private void OnDisable()
-    {
-        if (HealthBehaviour)
-            HealthBehaviour.OnDie -= OnDieHandler;
-    }
+    void OnDisable()
+        => HealthBehaviour?.OnDie -= OnDieHandler;
 
-    private void OnDieHandler() 
+    void OnDieHandler() 
         => ViewsController.Show<DefeadView>();
 }

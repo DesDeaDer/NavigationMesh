@@ -1,37 +1,17 @@
 ﻿using UnityEngine;
 
-public class CameraFollower : MonoBehaviour
-{
-
+public class CameraFollower : MonoBehaviour {
     [SerializeField] private Transform _target;
     [SerializeField] private float _speedMul;
 
-    private Vector3 distanceOffset;
+    public Transform Target => _target;
+    public float SpeedMul => _speedMul;
 
-    public Transform Target
-    {
-        get
-        {
-            return _target;
-        }
-    }
+    Vector3 distanceOffset;
+    
+    void Start()
+        => distanceOffset = transform.position - Target.position;
 
-    public float SpeedMul
-    {
-        get
-        {
-            return _speedMul;
-        }
-    }
-
-    private void Start()
-    {
-        distanceOffset = transform.position - Target.position;
-    }
-
-    private void LateUpdate()
-    {
-        transform.position = Vector3.Lerp(transform.position, Target.position + distanceOffset, Time.smoothDeltaTime * SpeedMul);
-    }
-
+    void LateUpdate()
+        => transform.position = Vector3.Lerp(transform.position, Target.position + distanceOffset, Time.smoothDeltaTime * SpeedMul);
 }
