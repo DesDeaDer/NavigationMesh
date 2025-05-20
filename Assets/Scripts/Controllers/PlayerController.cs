@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
-public class PlayerController : MonoBehaviour
-{
+public class PlayerController : MonoBehaviour {
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private Camera _camera;
     [SerializeField] private GameObject _effectMoveRef;
@@ -17,88 +16,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _distanceRaycast;
     [SerializeField] private float _distanceToEnemy;
 
-    public GameObject EffectMoveRef
-    {
-        get
-        {
-            return _effectMoveRef;
-        }
-    }
+    public GameObject EffectMoveRef => _effectMoveRef;
+    public GameObject EffectFigthRef => _effectFigthRef;
+    public Camera Camera => _camera;
+    public NavMeshAgent Agent => _agent;
+    public LayerMask MovatorLayer => _movatorLayer;
+    public float DistanceRaycast => _distanceRaycast;
+    public LayerMask EnemiesLayer => _enemiesLayer;
+    public float DistanceToEnemy => _distanceToEnemy;
+    public AttackBehaviour AttackBehavior => _attackBehavior;
+    public HealthBehaviour HealthBehaviour => _healthBehaviour;
 
-    public GameObject EffectFigthRef
-    {
-        get
-        {
-            return _effectFigthRef;
-        }
-    }
-
-    public Camera Camera
-    {
-        get
-        {
-            return _camera;
-        }
-    }
-
-    public NavMeshAgent Agent
-    {
-        get
-        {
-            return _agent;
-        }
-    }
-
-    public LayerMask MovatorLayer
-    {
-        get
-        {
-            return _movatorLayer;
-        }
-    }
-
-    public float DistanceRaycast
-    {
-        get
-        {
-            return _distanceRaycast;
-        }
-    }
-
-    public LayerMask EnemiesLayer
-    {
-        get
-        {
-            return _enemiesLayer;
-        }
-    }
-
-    public float DistanceToEnemy
-    {
-        get
-        {
-            return _distanceToEnemy;
-        }
-    }
-
-    public AttackBehaviour AttackBehavior
-    {
-        get
-        {
-            return _attackBehavior;
-        }
-    }
-
-    public HealthBehaviour HealthBehaviour
-    {
-        get
-        {
-            return _healthBehaviour;
-        }
-    }
-
-    public enum State
-    {
+    public enum State {
         Idle,
         MoveToPoint,
         MoveToEnemy,
@@ -106,74 +35,50 @@ public class PlayerController : MonoBehaviour
         Die
     }
 
-    private State _stateCurrent;
-    public State StateCurrent
-    {
-        get
-        {
-            return _stateCurrent;
-        }
-        set
-        {
+    State _stateCurrent;
+    public State StateCurrent {
+        get => _stateCurrent;
+        set {
             _stateCurrent = value;
-
-            if (OnChangeState != null)
-            {
-                OnChangeState();
-            }
+            OnChangeState?.Invoke();
         }
     }
 
     public event Action OnChangeState;
 
-    private void OnEnable()
-    {
-        HealthBehaviour.OnDie += Die;
-    }
+    void OnEnable()
+        => HealthBehaviour.OnDie += Die;
 
-    private void OnDisable()
-    {
-        if (HealthBehaviour)
-        {
-            HealthBehaviour.OnDie -= Die;
-        }
-    }
+    void OnDisable()
+        => HealthBehaviour?.OnDie -= Die;
 
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
-        {
-            RaycastHit hit;
+    void Update() {
+        var isInput = Input.GetMouseButtonDown(0);
+        var isTarget = !EventSystem.current.IsPointerOverGameObject();
+        
+        if (isInput && isTarget) {
             var ray = Camera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, DistanceRaycast, EnemiesLayer))
-            {
+            if (Physics.Raycast(ray, out var hit, DistanceRaycast, EnemiesLayer)) {
                 var healthBehaviour = hit.transform.GetComponentInParent<HealthBehaviour>();
-                if (healthBehaviour && healthBehaviour.IsLife)
-                {
+                if (healthBehaviour?.IsLife ?? false) {
                     MoveToEnemy(hit.collider.transform.position, healthBehaviour);
                     return;
                 }
             }
+            
             if (Physics.Raycast(ray, out hit, DistanceRaycast, MovatorLayer))
-            {
                 MoveToPoint(hit.point, hit.normal);
-            }
         }
     }
 
-    private void Figth(HealthBehaviour health)
-    {
+    void Figth(HealthBehaviour health) {
         AttackBehavior.Attack(health, Idle);
-
         StateCurrent = State.Figth;
     }
 
-    private void MoveToEnemy(Vector3 position, HealthBehaviour health)
-    {
+    void MoveToEnemy(Vector3 position, HealthBehaviour health) {
         if (StateCurrent == State.Figth)
-        {
             AttackBehavior.Untarget();
-        }
 
         MoveToPosition(position, DistanceToEnemy);
         CreateEffect(position, Vector3.up, EffectFigthRef);
@@ -183,13 +88,9 @@ public class PlayerController : MonoBehaviour
         StateCurrent = State.MoveToEnemy;
     }
 
-    private void MoveToPoint(Vector3 position, Vector3 normal)
-    {
+    void MoveToPoint(Vector3 position, Vector3 normal) {
         if (StateCurrent == State.Figth)
-        {
             AttackBehavior.Untarget();
-        }
-
 
         MoveToPosition(position);
         CreateEffect(position, normal, EffectMoveRef);
@@ -199,62 +100,41 @@ public class PlayerController : MonoBehaviour
         StateCurrent = State.MoveToPoint;
     }
 
-    private void Idle()
-    {
-        StateCurrent = State.Idle;
-    }
+    void Idle()
+        => StateCurrent = State.Idle;
 
-    private void Die()
-    {
+    void Die() {
         if (StateCurrent == State.Figth)
-        {
             AttackBehavior.Untarget();
-        }
 
         StateCurrent = State.Die;
     }
 
-    private void CreateEffect(Vector3 position, Vector3 normal, GameObject effectRef)
-    {
-        Instantiate(effectRef, position, Quaternion.FromToRotation(Vector3.up, normal) * effectRef.transform.rotation);
-    }
+    void CreateEffect(Vector3 position, Vector3 normal, GameObject effectRef)
+        => Instantiate(effectRef, position, Quaternion.FromToRotation(Vector3.up, normal) * effectRef.transform.rotation);
 
-    private void MoveToPosition(Vector3 position, float stoppingDistance = 0)
-    {
+    void MoveToPosition(Vector3 position, float stoppingDistance = 0) {
         Agent.SetDestination(position);
-        Agent.stoppingDistance = stoppingDistance;
+        Agent.stoppingDistance = stoppingDistance; //mb float epsilon set up as min val, check for a nav mesh actually works now
     }
 
-    private IEnumerator WaitForEndMoveToPoint()
-    {
-        yield return new WaitForFixedUpdate();
-
-        while (Agent.transform.position != Agent.pathEndPosition)
-        {
-            yield return new WaitForEndOfFrame();
-
-            if (StateCurrent != State.MoveToPoint)
-            {
-                yield break;
-            }
-        }
-
+    IEnumerator WaitForEndMoveToPoint() {
+        do
+            yield return new WaitForFixedUpdate();
+        while (
+            StateCurrent == State.MoveToPoint //this is bad
+            && (Agent.transform.position - health.transform.position).magnitude > DistanceToEnemy)
+        
         Idle();
     }
 
-    private IEnumerator WaitForEndMoveToEnemy(HealthBehaviour health)
-    {
-        yield return new WaitForEndOfFrame();
-
-        while ((Agent.transform.position - health.transform.position).magnitude > DistanceToEnemy)
-        {
-            yield return new WaitForFixedUpdate();
-            if (StateCurrent != State.MoveToEnemy)
-            {
-                yield break;
-            }
-        }
-
+    IEnumerator WaitForEndMoveToEnemy(HealthBehaviour health) {
+        do
+            yield return new WaitForEndOfFrame();
+        while (
+            StateCurrent == State.MoveToEnemy //this is bad
+            && (Agent.transform.position - health.transform.position).magnitude > DistanceToEnemy)
+        
         Figth(health);
     }
 }
