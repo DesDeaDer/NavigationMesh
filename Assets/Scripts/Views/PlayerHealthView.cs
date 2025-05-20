@@ -1,30 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerHealthView : ViewBase
-{
+public class PlayerHealthView : ViewBase {
     [SerializeField] private Image _image;
     [SerializeField] private HealthBehaviour _healthBehaviour;
 
-    public float FillPercent
-    {
-        set
-        {
-            _image.fillAmount = value;
-        }
+    public float FillPercent {
+        set => _image.fillAmount = value;
     }
 
-    public HealthBehaviour HealthBehaviour
-    {
-        get
-        {
-            return _healthBehaviour;
-        }
-    }
+    public HealthBehaviour HealthBehaviour => _healthBehaviour;
 
-    private void Update()
-    {
-        FillPercent = (float)HealthBehaviour.Health / HealthBehaviour.HealthMax;
-    }
-
+    void Update() //perfomance issue
+        => FillPercent = (float)HealthBehaviour.Health / HealthBehaviour.HealthMax;
 }
