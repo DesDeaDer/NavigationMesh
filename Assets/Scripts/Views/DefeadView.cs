@@ -1,15 +1,10 @@
-﻿public class DefeadView : ViewBase
-{
-    //Call from UI
-    public void Replay()
-    {
+﻿public class DefeadView : ViewBase {
+    public void Replay() {
         Hide();
         SceneID.Game.LoadScene();
     }
 
-    //Call from UI
-    public void Back()
-    {
+    public void Back() {
         Hide();
         SceneID.Menu.LoadScene();
     }
